@@ -1,0 +1,1 @@
+./configure --prefix=/usr/local --target-list="x86_64-softmmu" --disable-kvm --audio-card-list="" --disable-vnc-jpeg --disable-vnc-png --disable-strip --python=/usr/bin/python2 --extra-cflags="-lrt -Wno-unused-local-typedefs -Wno-deprecated-declarations -Wno-discarded-qualifiers -Wno-unused-const-variable -Wno-int-in-bool-context -Wno-missing-prototypes -Wno-format-truncation"
