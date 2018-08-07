@@ -26,18 +26,17 @@ void pmtrace_set_sample(int sampleRate)
 	pmtrace_sampling = pmtrace_sampleRate - 1;
 }
 
-void pmtrace_log(int accessType, target_phys_addr_t phyAddress, int accessSize)
+void pmtrace_log(int accessType, target_phys_addr_t phyAddress, unsigned long val, int accessSize)
 {
-	char accessTypeChar;
     struct timeval nowtime;
-    long unixtimeus;
-	
+	pmtrace_log_entry entry;
+
 	if (!pmtrace_fileName)
 		return;
 	
 	if (!pmtrace_outputFile)
 	{
-		pmtrace_outputFile = fopen(pmtrace_fileName, "wt");
+		pmtrace_outputFile = fopen(pmtrace_fileName, "wb");
 		if (!pmtrace_outputFile)
 		{
 			perror("pmtrace: cannot open file");
@@ -50,31 +49,14 @@ void pmtrace_log(int accessType, target_phys_addr_t phyAddress, int accessSize)
 		return;
 	pmtrace_sampling = 0;
 	
-	switch (accessType)
-	{
-	case PMTRACE_ACCESSTYPE_READ:
-		accessTypeChar = 'R';
-		break;
-	case PMTRACE_ACCESSTYPE_WRITE:
-		accessTypeChar = 'W';
-		break;
-	case PMTRACE_ACCESSTYPE_WRITENOTDIRTY:
-		accessTypeChar = 'D';
-		break;
-	default:
-		perror("pmtrace: unknown access type");
-		abort();
-		break;
-	}
-
     gettimeofday(&nowtime, 0);
-    unixtimeus = nowtime.tv_sec * 1000000;
-    unixtimeus += nowtime.tv_usec;
+    entry.unix_time = nowtime.tv_sec * 1000000 + nowtime.tv_usec;
+    entry.access_type = accessType;
+    entry.address = phyAddress;
+    entry.val = val;
+    entry.access_size = accessSize;
 	
-	if (sizeof(target_phys_addr_t) == 4)
-		fprintf(pmtrace_outputFile, "%16ld,%c,0x%08lx,%d,N\n", unixtimeus, accessTypeChar, phyAddress, accessSize);
-	else
-		fprintf(pmtrace_outputFile, "%16ld,%c,0x%016lx,%d,N\n", unixtimeus, accessTypeChar, phyAddress, accessSize);
+    fwrite(&entry, sizeof(entry), 1, pmtrace_outputFile);
 	
 	fflush(pmtrace_outputFile);
 }

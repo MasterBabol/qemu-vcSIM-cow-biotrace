@@ -161,7 +161,7 @@ glue(glue(glue(HELPER_PREFIX, ld), SUFFIX), MMUSUFFIX)(ENV_PARAM
         goto redo;
     }
 
-    pmtrace_log(PMTRACE_ACCESSTYPE_READ, get_phys_addr_read(env, addr), sizeof(DATA_TYPE));
+    pmtrace_log(PMTRACE_ACCESSTYPE_READ, get_phys_addr_read(env, addr), res, sizeof(DATA_TYPE));
     return res;
 }
 
@@ -308,7 +308,7 @@ void glue(glue(glue(HELPER_PREFIX, st), SUFFIX), MMUSUFFIX)(ENV_PARAM
         tlb_fill(env, addr, 1, mmu_idx, retaddr);
         goto redo;
     }
-    pmtrace_log(PMTRACE_ACCESSTYPE_WRITE, get_phys_addr_read(env, addr), sizeof(DATA_TYPE));
+    pmtrace_log(PMTRACE_ACCESSTYPE_WRITE, get_phys_addr_read(env, addr), val, sizeof(DATA_TYPE));
 }
 
 /* handles all unaligned cases */
